@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpDto } from './auth.controller';
+import { LogInDto, SignUpDto } from './auth.controller';
 
 @Injectable()
 export class AuthService {
@@ -19,9 +19,8 @@ export class AuthService {
     }
 
     async signUp(signUpDto: SignUpDto) {
-        //check if user already exist
-        const usernameExists = (await this.userService.findUserByUsername(signUpDto.username)).length > 0;
-        const emailExists = (await this.userService.findUserByEmail(signUpDto.email)).length > 0;
+        const usernameExists = (await this.userService.findUserByUsername(signUpDto.username))?.username;
+        const emailExists = (await this.userService.findUserByEmail(signUpDto.email))?.email;
 
         if(usernameExists) {
             throw new BadRequestException('username already exists')
@@ -30,11 +29,25 @@ export class AuthService {
         if(emailExists) {
             throw new BadRequestException('email already exists')
         }
-        //check if email exists
         const hashedPassword = await this.hashPassword(signUpDto.password)
         signUpDto.password = hashedPassword;
 
         const user = await this.userService.createUser(signUpDto)
+        return await this.createAccessToken(user);
+    }
+    async verifyPassword(enteredPassword: string, existingPassword: string) {
+        return await bcrypt.compare(enteredPassword, existingPassword)
+    }
+    async logIn(logInDto: LogInDto) {
+        const user = await this.userService.findUserByUsername(logInDto.username)
+        console.log('USER', user)
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+        const passwordsMatch = await this.verifyPassword(logInDto.password, user.password);
+        if (!passwordsMatch) {
+            throw new UnauthorizedException('Incorrect password');
+        }
         return await this.createAccessToken(user);
     }
 }

@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-// import { Name } from './name.entity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import typeorm from './config/typeorm';
@@ -20,7 +19,6 @@ import typeorm from './config/typeorm';
     }),
     AuthModule,
     UsersModule,
-    // TypeOrmModule.forFeature([Name]),
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -71,10 +71,6 @@ const SignUp = () => {
     };
 
     const onSubmit = () => {
-        console.log("PASSWORD: ", password)
-        console.log("SECOND PASSWORD: ", secondPassword)
-        console.log(isInvalidPass2(password, secondPassword))
-
         setSubmitClickedName(true);
         setSubmitClickedEmail(true);
         setSubmitClickedUsername(true);
