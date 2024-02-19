@@ -8,6 +8,10 @@ import LogIn from "./Pages/LogIn";
 import Projects from "./Pages/Projects";
 import Profile from "./Pages/Profile";
 import axios from 'axios';
+import { createStandaloneToast } from '@chakra-ui/react';
+
+
+const { ToastContainer, toast } = createStandaloneToast();
 
 const router = createBrowserRouter([
   {
@@ -37,12 +41,25 @@ const router = createBrowserRouter([
               const response = await axios.get("http://localhost:3025/auth/profile", {headers: {Authorization: `Bearer ${token}` }});
             return response.data;
           } catch (error) {
-            console.log ('ERROR', error);
+            toast ({
+              title: "An error Occured.",
+              description: "You must be signed in to view this page!",
+              status: "error",
+              duration: 3000,
+              isClosable: true,
+            });
             return redirect("/log-in");
           }
 
             } else {
               console.log('NO TOKEN');
+              toast ({
+                title: "An error Occured.",
+                description: "You must have an account to view this page!",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+              });
               return redirect("/sign-up")
             }
         }
@@ -55,8 +72,5 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 
-root.render(<RouterProvider router={router} />);
-
-function toast(arg0: { title: string; description: string; status: string; duration: number; isClosable: boolean; }) {
-  throw new Error('Function not implemented.');
-}
+root.render( <><ToastContainer /><RouterProvider router={router} /></>
+);

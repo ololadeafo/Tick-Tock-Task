@@ -122,7 +122,7 @@ const SignUp = () => {
                 console.log("ERROR", error);
                 toast ({
                     title: "Error",
-                    description: "We were not able to creat your account. Please try again!",
+                    description: "We were not able to create your account. Please try again!",
                     status: "error",
                     duration: 3000,
                     isClosable: true,
