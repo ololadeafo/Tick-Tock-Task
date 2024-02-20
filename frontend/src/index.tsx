@@ -17,6 +17,21 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    loader: async () => {
+
+      const token = localStorage.getItem("token");
+      if(token) {
+        try {
+          const response = await axios.get("http://localhost:3025/auth/profile", {headers: {Authorization: `Bearer ${token}` }});
+        return response.data;
+      } catch (error) {
+        return {};
+      }
+
+        } else {
+          return {};
+        }
+    },
     children: [
       {
         path: "/sign-up",
@@ -52,7 +67,6 @@ const router = createBrowserRouter([
           }
 
             } else {
-              console.log('NO TOKEN');
               toast ({
                 title: "An error Occured.",
                 description: "You must have an account to view this page!",
@@ -62,7 +76,7 @@ const router = createBrowserRouter([
               });
               return redirect("/sign-up")
             }
-        }
+        },
       },
     ],
   },
@@ -72,5 +86,9 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 
-root.render( <><ToastContainer /><RouterProvider router={router} /></>
+root.render( 
+  <>
+    <ToastContainer />
+    <RouterProvider router={router} />
+  </>
 );

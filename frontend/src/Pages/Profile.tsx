@@ -1,13 +1,16 @@
 import { Box, Button, Text, useToast } from "@chakra-ui/react"
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate, useOutletContext } from "react-router-dom";
+import { Context } from "../App";
 
 const Profile = () => {
     const data = useLoaderData();
     const navigate = useNavigate();
     const toast = useToast();
+    const context = useOutletContext() as Context;
 
     const logOut = () => {
         localStorage.removeItem("token");
+        context.toggleLoggedIn();
         navigate("/log-in");
         toast ({
             title: "Success",

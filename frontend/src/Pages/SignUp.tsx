@@ -1,7 +1,8 @@
 import { Box, Input, Text, Button, FormControl, FormLabel, FormHelperText, FormErrorMessage, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { Context } from "../App";
 
 const isInvalidEmail = (email: string) => {
     const emailFormat = /\S+@\S+\.\S+/;
@@ -24,6 +25,7 @@ const isInvalidPass2 = (pass1: string, pass2: string) => {
 const SignUp = () => {
     const navigate = useNavigate();
     const toast = useToast();
+    const context = useOutletContext() as Context
 
 
     const [name, setName] = useState("");
@@ -85,6 +87,7 @@ const SignUp = () => {
         } else {
             axios.post("http://localhost:3025/auth/sign-up", { name, email, username, password }).then((response) => {
                 const token = response.data;
+                context.toggleLoggedIn();
                 localStorage.setItem("token", token);
 
                 setName("");
@@ -176,7 +179,7 @@ const SignUp = () => {
                 </FormControl>
 
                 <FormControl isInvalid={isErrorSecondPassword} isRequired>
-                    <FormLabel>Enter Password again</FormLabel>
+                    <FormLabel>Re-enter Password</FormLabel>
                     <Input type='password' value={secondPassword} onChange={onChangeSecondPassword} />
                     {!isErrorSecondPassword ? (
                         null
