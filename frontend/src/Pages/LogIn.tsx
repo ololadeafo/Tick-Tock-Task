@@ -1,13 +1,15 @@
-import { Box, FormControl, FormLabel, Text, Input, Button, useToast, FormErrorMessage } from "@chakra-ui/react";
+import { Box, FormControl, FormLabel, Text, Input, Button, useToast, FormErrorMessage, useDisclosure} from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Context } from "../App";
+import ForgotPasswordModal from "../Components/LogIn/ForgotPasswordModal";
 
 const LogIn = () => {
     const navigate = useNavigate();
     const toast = useToast();
     const context = useOutletContext() as Context;
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -98,6 +100,11 @@ const LogIn = () => {
                 </FormControl>
                 <Button w="100%" onClick={onSubmit}>Submit</Button>
             </Box>
+            <Box display="flex" gap={10} justifyContent="center" mt={10}>
+                <Text lineHeight="40px">Forgot your Password?</Text>
+                <Button onClick={onOpen}>Reset Password</Button>
+            </Box>
+            <ForgotPasswordModal isOpen={isOpen} onClose={onClose}/>
         </Box>
     );
 };

@@ -45,6 +45,25 @@ export class AccountDetailDto {
     value: string;
 };
 
+export class Email {
+    @IsEmail(undefined, { message: "Please enter a valid email address!" })
+    @Transform((params) => sanitizeHTML(params.value))
+    email: string;
+}
+
+export class NewPasswordDto {
+    @IsNotEmpty()
+    @Transform((params) => sanitizeHTML(params.value))
+    newPassword: string
+
+    @IsNotEmpty()
+    id: number
+
+    @IsNotEmpty()
+    token: string
+
+}
+
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) {}
@@ -70,5 +89,20 @@ export class AuthController {
     getProfileData(@Request() req) {
         return this.authService.getProfileData(req.user.username);
     }
-}
 
+    @Post('reset-password')
+    sendResetPasswordEmail(@Body() body: Email) {
+        return this.authService.sendResetPasswordEmail(body.email);
+    }
+
+    @Post('save-new-password')
+    saveNewPassword(@Body() body: NewPasswordDto) {
+        return this.authService.saveNewPassword(body.newPassword, body.id, body.token);
+    }
+
+    @UseGuards(AuthGuard)
+    @Post('delete-user')
+    deleteUser(@Request() req) {
+        return this.authService.deleteUser(req.user.sub);
+    }
+}

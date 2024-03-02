@@ -3,6 +3,7 @@ import { useLoaderData, useNavigate, useOutletContext } from "react-router-dom";
 import { Context } from "../App";
 import { EditIcon } from "@chakra-ui/icons";
 import UserDetailsRow from "../Components/Profile/UserDetailsRow";
+import axios from "axios";
 
 type Data = {
     email: string;
@@ -31,6 +32,34 @@ const Profile = () => {
         });
     }
 
+    const deleteAccount = () => {
+        const token = localStorage.getItem("token");
+        axios.post(
+            "http://localhost:3025/auth/delete-user", 
+            {},
+            { headers: {Authorization: `Bearer ${token}` } }
+        ).then((response) => {
+            localStorage.removeItem("token");
+            navigate("/sign-up");
+            toast({
+                title: "Success",
+                description: "Your account has been deleted",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
+        }).catch((error) => {
+            console.log("ERROR", error)
+            toast ({
+                title: "Error",
+                description: "There was an error deleting your account. Please try again!",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+        })
+    }
+
 
     return (
         <Box>
@@ -51,7 +80,7 @@ const Profile = () => {
             </Box>
             <Box display="flex" gap={4} justifyContent="center">
                 <Button onClick={logOut}>Log Out</Button>
-                <Button onClick={() => {}}>Delete Account</Button>
+                <Button onClick={deleteAccount}>Delete Account</Button>
             </Box>
         </Box>
     )

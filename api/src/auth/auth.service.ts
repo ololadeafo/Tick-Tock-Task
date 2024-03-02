@@ -3,19 +3,33 @@ import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { AccountDetailDto, LogInDto, SignUpDto } from './auth.controller';
+import { User } from 'src/users/entities/user.entity';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private jwtService: JwtService) {}
+    constructor(
+        private userService: UsersService,
+        private mailService: MailService, 
+        private jwtService: JwtService
+        ) {}
 
     async hashPassword(password: string) {
         const saltRounds = 10;
         return await bcrypt.hash(password, saltRounds);
     }
 
-    async createAccessToken(user) {
-        const payload = { sub: user.userId, username: user.username };
-        return await this.jwtService.signAsync(payload);
+    async createAccessToken(user: User, secret?: string) {
+        const payload = { sub: user.id, username: user.username };
+
+        if (secret) {
+            return await this.jwtService.signAsync(payload, { 
+                secret,
+                expiresIn: "10m",
+            });
+        } else {
+            return await this.jwtService.signAsync(payload);
+        }
     }
 
     async signUp(signUpDto: SignUpDto) {
@@ -74,5 +88,35 @@ export class AuthService {
             name: user.name,
             username: user.username
         }
+    }
+
+    async sendResetPasswordEmail(email: string) {
+        const user = await this.userService.findUserByEmail(email);
+
+        if (user === null) {
+            throw new BadRequestException('email not found');
+        }
+
+        const token = await this.createAccessToken(user, user.password)
+        return await this.mailService.sendPasswordResetEmail(user, token);
+    }
+
+    async saveNewPassword(newPassword: string, id: number, token: string) {
+        const user = await this.userService.findUserById(id);
+        await this.jwtService.verifyAsync(token, {
+            secret: user.password, 
+        })
+        .catch(() => {
+            throw new UnauthorizedException('token is invalid')
+        })
+        .then(async() => {
+            const hashedPassword = await this.hashPassword(newPassword);
+            user.password = hashedPassword;
+            return await this.userService.createUser(user);
+        });
+    }
+
+    async deleteUser(id: number) {
+        return await this.userService.deleteUser(id);
     }
 }
