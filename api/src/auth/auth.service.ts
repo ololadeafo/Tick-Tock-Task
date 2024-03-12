@@ -5,11 +5,13 @@ import { JwtService } from '@nestjs/jwt';
 import { AccountDetailDto, LogInDto, SignUpDto } from './auth.controller';
 import { User } from 'src/users/entities/user.entity';
 import { MailService } from 'src/mail/mail.service';
+import { ProjectsService } from 'src/projects/projects.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private userService: UsersService,
+        private projectsService: ProjectsService,
         private mailService: MailService, 
         private jwtService: JwtService
         ) {}
@@ -80,9 +82,8 @@ export class AuthService {
 
         return await this.userService.createUser(user);
     }
-    async getProfileData(username: string) {
-        console.log("USERNAME", username)
-        const user = await this.userService.findUserByUsername(username);
+    async getProfileData(id: number) {
+        const user = await this.userService.findUserById(id);
         return {
             email: user.email,
             name: user.name,
@@ -118,5 +119,22 @@ export class AuthService {
 
     async deleteUser(id: number) {
         return await this.userService.deleteUser(id);
+    }
+
+
+    async getUserProjects(userId: number) {
+        const user = await this.getProfileData(userId);
+        const projects = await this.projectsService.getUserProjects(userId);
+        console.log('USER', user);
+        console.log('PROJECTS', projects);
+        return {
+            user,
+            projects,
+        }
+    }
+
+
+    async createProject(name:string, description: string, userId: number) {
+        return await this.projectsService.createProject(name, description, userId);
     }
 }

@@ -3,13 +3,15 @@ import { CheckIcon, EditIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import axios from "axios";
 import { isInvalidEmail } from "../../Pages/SignUp";
+import { Data } from "../../Pages/Profile";
 
 type Props = {
     field: string;
     value: string;
     username: string;
+    setData: React.Dispatch<React.SetStateAction<Data>>;
 }
-const UserDetailsRow = ({field, value, username }: Props) => {
+const UserDetailsRow = ({field, value, username, setData }: Props) => {
     const toast = useToast();
 
     const [updateField, setUpdateField] = useState(false);
@@ -59,6 +61,7 @@ const UserDetailsRow = ({field, value, username }: Props) => {
         }, {headers: { Authorization: `Bearer ${token}` } }
         ).then((response) => {
             console.log("RESPONSE", response.data);
+            setData(response.data);
             toast ({
                 title: "Success",
                 description: "Account details have been updated",
